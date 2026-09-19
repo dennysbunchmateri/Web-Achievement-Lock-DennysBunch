@@ -70,24 +70,6 @@
   }
   /* Permanent center spine shadow — simulates the physical book fold,
      always visible regardless of flip animation state */
-  #book::after{
-    content:"";
-    position:absolute;
-    top:0; bottom:0;
-    left:50%;
-    width:72px;
-    transform:translateX(-50%);
-    background:linear-gradient(
-      to right,
-      rgba(0,0,0,0) 0%,
-      rgba(0,0,0,.35) 40%,
-      rgba(0,0,0,.5) 50%,
-      rgba(0,0,0,.35) 60%,
-      rgba(0,0,0,0) 100%
-    );
-    pointer-events:none;
-    z-index:20;
-  }
   /* Hardening for St.PageFlip's internal DOM (prevents underlying pages
      from bleeding through / appearing to lift during the flip animation).
      Only .stf__item (the actual leaf page wrapper) gets a solid fill —
@@ -137,18 +119,18 @@
     content:"";
     position:absolute; inset:0;
     background:
-      linear-gradient(to right, rgba(0,0,0,.22) 0%, rgba(0,0,0,0) 7%),
-      linear-gradient(to left, rgba(0,0,0,.22) 0%, rgba(0,0,0,0) 7%);
+      linear-gradient(to right, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%),
+      linear-gradient(to left, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%);
     pointer-events:none;
     z-index:6;
   }
   /* Directional spine shadow for spreads where the page's side is known
      (--left = spine on its right edge, --right = spine on its left edge) */
   .page.--left .page-content::before{
-    background:linear-gradient(to left, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 16%);
+    background:linear-gradient(to left, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
   }
   .page.--right .page-content::before{
-    background:linear-gradient(to right, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 16%);
+    background:linear-gradient(to right, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
   }
   .page-content img{
     width:100%; height:100%;
@@ -158,6 +140,20 @@
     background-color:#ffffff;
     padding:0;
     margin:0 auto;
+  }
+  .page-number{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    color:#555;
+    font-family:inherit;
+    z-index:8;
+    pointer-events:none;
+    background-color:rgba(255,255,255,.75);
+    padding:1px 8px;
+    border-radius:3px;
   }
 
   #controls{
@@ -205,9 +201,44 @@
   }
 
   @media (max-width: 700px){
-    #title-bar{font-size:11px;}
-    .ctrl-btn{padding:8px 14px; font-size:12px;}
-    #page-indicator{padding:8px 12px; font-size:12px; min-width:100px;}
+    #stage{padding:10px; gap:10px;}
+    #title-bar{font-size:10.5px; letter-spacing:1.2px;}
+    #book-wrap{padding:14px 10px; max-width:100%;}
+    #book, #bookshadow{
+      /* On narrow screens the book shows a single page (usePortrait:true
+         kicks in), so size the container to a single-page ratio (1:1.41)
+         instead of the wider two-page spread ratio used on desktop. */
+      width:min(88vw, calc(64vh / 1.41));
+      height:min(64vh, calc(88vw * 1.41));
+      max-width:420px;
+    }
+    #controls{gap:8px; padding:4px 4px;}
+    .ctrl-btn{padding:8px 12px; font-size:11.5px; gap:4px;}
+    #page-indicator{padding:8px 12px; font-size:11.5px; min-width:88px;}
+    #fullscreen-btn{margin-left:0;}
+    .hint{font-size:9.5px; padding:0 8px;}
+    .page-number{font-size:10px; bottom:10px; padding:1px 6px;}
+  }
+
+  @media (max-width: 420px){
+    #title-bar{font-size:9px; letter-spacing:.8px;}
+    .ctrl-btn{padding:7px 10px; font-size:11px;}
+    #page-indicator{padding:7px 10px; font-size:11px; min-width:76px;}
+    .hint{display:none;}
+  }
+
+  @media (max-width: 700px) and (orientation: landscape){
+    /* Phones held sideways have plenty of width but very little height —
+       let the book use more of the vertical space and shrink the chrome. */
+    #stage{padding:6px; gap:6px;}
+    #title-bar{font-size:9px;}
+    #book-wrap{padding:8px 10px;}
+    #book, #bookshadow{
+      width:min(70vw, calc(80vh / 1.41));
+      height:min(80vh, calc(70vw * 1.41));
+      max-width:360px;
+    }
+    .hint{display:none;}
   }
 </style>
 </head>
@@ -270,10 +301,22 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
 
   // Build page DOM elements — showCover:true handles the front/back
   // cover pairing automatically, so no manual blank page is added.
+  // Page numbering rules:
+  //  - Page 1 (front cover) & Page 2 (grayscale cover) & Page 25 (back cover): no number
+  //  - Page 3 (title/module page): Roman numeral "II"
+  //  - Page 4 onward: sequential Arabic numbers 1, 2, 3, ... (resets after the Roman page)
+  function getPageNumberLabel(i){
+    if(i === 1 || i === 2 || i === 25) return '';
+    if(i === 3) return 'II';
+    return String(i - 3); // page 4 -> "1", page 5 -> "2", ...
+  }
+
   for(let i=1;i<=25;i++){
     const pageDiv = document.createElement('div');
     pageDiv.className = 'page';
-    pageDiv.innerHTML = `<div class="page-content"><img src="${PAGE_DATA[i]}" alt="Halaman ${i}"></div>`;
+    const numLabel = getPageNumberLabel(i);
+    const numHTML = numLabel ? `<div class="page-number">${numLabel}</div>` : '';
+    pageDiv.innerHTML = `<div class="page-content"><img src="${PAGE_DATA[i]}" alt="Halaman ${i}">${numHTML}</div>`;
     bookEl.appendChild(pageDiv);
   }
 
@@ -317,7 +360,7 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
         maxShadowOpacity: 0.6,
         showCover: true,
         mobileScrollSupport: false,
-        usePortrait: false,
+        usePortrait: true,
         flippingTime: 700
       });
       pageFlip.loadFromHTML(document.querySelectorAll('#book .page'));
