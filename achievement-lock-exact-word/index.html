@@ -41,6 +41,8 @@
     align-items:center;
     justify-content:center;
     width:100%;
+    max-width:900px;
+    margin:0 auto;
     flex:1;
     min-height:0;
     padding:28px 24px;
@@ -49,22 +51,22 @@
   }
   #bookshadow{
     position:absolute;
-    width:min(92vw, calc(68vh * 1.4));
-    height:min(68vh, calc(92vw / 1.4));
-    max-height:68vh;
+    width:min(92vw, calc(68vh * 1.41), 900px);
+    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
     border-radius:6px;
     box-shadow:0 10px 30px rgba(0,0,0,0.5);
     pointer-events:none;
     z-index:0;
+    margin:0 auto;
   }
   #book{
     position:relative;
     z-index:1;
-    width:min(92vw, calc(68vh * 1.4));
-    height:min(68vh, calc(92vw / 1.4));
-    max-height:68vh;
-    background-color:#ffffff;
+    width:min(92vw, calc(68vh * 1.41), 900px);
+    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
+    background-color:transparent;
     overflow:hidden;
+    margin:0 auto;
   }
   /* Permanent center spine shadow — simulates the physical book fold,
      always visible regardless of flip animation state */
@@ -87,10 +89,19 @@
     z-index:20;
   }
   /* Hardening for St.PageFlip's internal DOM (prevents underlying pages
-     from bleeding through / appearing to lift during the flip animation) */
+     from bleeding through / appearing to lift during the flip animation).
+     Only .stf__item (the actual leaf page wrapper) gets a solid fill —
+     the outer wrapper levels stay transparent so an unused page slot in
+     single-cover mode shows the dark stage backdrop instead of a blank
+     white rectangle. */
   #book .stf__parent,
   #book .stf__wrapper,
-  #book .stf__block,
+  #book .stf__block{
+    background-color:transparent !important;
+    overflow:hidden !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
+  }
   #book .stf__item{
     background-color:#ffffff !important;
     overflow:hidden !important;
@@ -146,7 +157,7 @@
     display:block;
     background-color:#ffffff;
     padding:0;
-    margin:0;
+    margin:0 auto;
   }
 
   #controls{
@@ -284,13 +295,22 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
       // matching the #book/#bookshadow CSS (max-height:68vh) so the
       // footer controls always stay clear of the book.
       const cappedMaxHeight = Math.round(window.innerHeight * 0.68);
+
+      // Derive single-page width from height using the A4/book-standard
+      // ratio of 1 : 1.41 (height : width), instead of a fixed guess,
+      // so the page always reads as a tall, slender portrait sheet —
+      // never a wide/flattened rectangle.
+      const pageHeight = 500;
+      const pageWidth = Math.round(pageHeight / 1.41);
+      const PAGE_MAX_WIDTH = 480; // single-page cap, keeps a 2-page spread from ever eating the whole screen
+
       pageFlip = new St.PageFlip(bookEl, {
-        width: 350,
-        height: 500,
+        width: pageWidth,
+        height: pageHeight,
         size: "stretch",
-        minWidth: 245,
-        maxWidth: 700,
-        minHeight: 350,
+        minWidth: 220,
+        maxWidth: PAGE_MAX_WIDTH,
+        minHeight: 310,
         maxHeight: cappedMaxHeight,
         autoSize: true,
         drawShadow: true,
