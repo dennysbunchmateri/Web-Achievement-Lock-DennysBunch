@@ -240,6 +240,44 @@
     }
     .hint{display:none;}
   }
+
+  /* ==== Print feature (additive only — does not affect the flipbook) ==== */
+  #printArea{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #stage{ display:none !important; }
+    #printArea{
+      display:block !important;
+      position:absolute;
+      top:0; left:0;
+      width:100%;
+      background:#fff;
+    }
+    #printArea .print-page{
+      width:100%;
+      page-break-after:always;
+      break-after:page;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #printArea .print-page:last-child{
+      page-break-after:auto;
+      break-after:auto;
+    }
+    #printArea .print-page img{
+      width:100%;
+      height:auto;
+      max-height:100vh;
+      object-fit:contain;
+      display:block;
+    }
+    @page{
+      size:auto;
+      margin:10mm;
+    }
+  }
 </style>
 </head>
 <body>
@@ -257,9 +295,15 @@
     <div id="page-indicator">Halaman 1 / 26</div>
     <button class="ctrl-btn" id="btnNext">Selanjutnya &#8594;</button>
     <button class="ctrl-btn" id="fullscreen-btn">&#9974; Layar Penuh</button>
+    <button class="ctrl-btn" id="print-btn">&#128424; Cetak / Print</button>
   </div>
   <div class="hint">Gunakan tombol panah keyboard (&#8592; &#8594;) atau seret sudut halaman untuk membalik</div>
 </div>
+
+<!-- Print-only document: every page (including front & back cover) laid out
+     one per printed sheet, in order. Hidden on screen, shown only when
+     printing — does not affect the interactive flipbook above in any way. -->
+<div id="printArea"></div>
 
 <script>
 const PAGE_DATA = {};
@@ -468,6 +512,33 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
   window.addEventListener('load', ()=>{
     setTimeout(initFlipbook, 150);
   });
+})();
+</script>
+
+<script>
+// ==== Print feature (standalone, additive only) ====
+// Builds a plain, ordered, one-page-per-sheet printable document from the
+// same PAGE_DATA already loaded for the flipbook, then triggers the
+// browser's print dialog. Does not touch or depend on the flipbook logic.
+(function(){
+  function buildPrintArea(){
+    const area = document.getElementById('printArea');
+    if(!area || area.childElementCount > 0) return; // already built
+    for(let i=1;i<=25;i++){
+      const sheet = document.createElement('div');
+      sheet.className = 'print-page';
+      sheet.innerHTML = `<img src="${PAGE_DATA[i]}" alt="Halaman ${i}">`;
+      area.appendChild(sheet);
+    }
+  }
+
+  const printBtn = document.getElementById('print-btn');
+  if(printBtn){
+    printBtn.addEventListener('click', ()=>{
+      buildPrintArea();
+      window.print();
+    });
+  }
 })();
 </script>
 
