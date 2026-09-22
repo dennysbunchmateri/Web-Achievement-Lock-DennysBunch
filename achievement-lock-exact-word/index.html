@@ -243,11 +243,15 @@
 
   /* ==== Print feature (additive only — does not affect the flipbook) ==== */
   #printArea{ display:none; }
+  #printAreaBooklet{ display:none; }
   @media print{
     body *{ visibility:hidden; }
-    #printArea, #printArea *{ visibility:visible; }
     #stage{ display:none !important; }
-    #printArea{
+
+    /* --- Mode 1: normal print (1 page per sheet, portrait) --- */
+    body:not(.printing-booklet) #printArea,
+    body:not(.printing-booklet) #printArea *{ visibility:visible; }
+    body:not(.printing-booklet) #printArea{
       display:block !important;
       position:absolute;
       top:0; left:0;
@@ -262,6 +266,8 @@
       align-items:center;
       justify-content:center;
       position:relative;
+      padding:10mm;
+      box-sizing:border-box;
     }
     #printArea .print-page:last-child{
       page-break-after:auto;
@@ -269,7 +275,7 @@
     }
     #printArea .print-page-number{
       position:absolute;
-      bottom:6mm;
+      bottom:4mm;
       left:50%;
       transform:translateX(-50%);
       font-size:12px;
@@ -286,9 +292,68 @@
       object-fit:contain;
       display:block;
     }
+
+    /* --- Mode 2: booklet print (2 pages per landscape sheet) --- */
+    body.printing-booklet #printAreaBooklet,
+    body.printing-booklet #printAreaBooklet *{ visibility:visible; }
+    body.printing-booklet #printAreaBooklet{
+      display:block !important;
+      position:absolute;
+      top:0; left:0;
+      width:100%;
+      background:#fff;
+    }
+    #printAreaBooklet .booklet-sheet{
+      width:100%;
+      height:100vh;
+      display:flex;
+      page-break-after:always;
+      break-after:page;
+      box-sizing:border-box;
+    }
+    #printAreaBooklet .booklet-sheet:last-child{
+      page-break-after:auto;
+      break-after:auto;
+    }
+    #printAreaBooklet .booklet-half{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8mm;
+      box-sizing:border-box;
+      position:relative;
+      overflow:hidden;
+    }
+    #printAreaBooklet .booklet-half.--left{
+      border-right:1px dashed #bbb; /* fold/cut guide */
+    }
+    #printAreaBooklet .booklet-half img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+    #printAreaBooklet .booklet-page-number{
+      position:absolute;
+      bottom:4mm;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:11px;
+      color:#555;
+      font-family:inherit;
+      background-color:rgba(255,255,255,.75);
+      padding:1px 7px;
+      border-radius:3px;
+    }
+
+    body:not(.printing-booklet) #printAreaBooklet,
+    body.printing-booklet #printArea{
+      display:none !important;
+    }
+
     @page{
       size:auto;
-      margin:10mm;
+      margin:0;
     }
   }
 </style>
@@ -309,6 +374,7 @@
     <button class="ctrl-btn" id="btnNext">Selanjutnya &#8594;</button>
     <button class="ctrl-btn" id="fullscreen-btn">&#9974; Layar Penuh</button>
     <button class="ctrl-btn" id="print-btn">&#128424; Cetak / Print</button>
+    <button class="ctrl-btn" id="print-booklet-btn">&#128214; Cetak Buku (Landscape)</button>
   </div>
   <div class="hint">Gunakan tombol panah keyboard (&#8592; &#8594;) atau seret sudut halaman untuk membalik</div>
 </div>
@@ -317,6 +383,11 @@
      one per printed sheet, in order. Hidden on screen, shown only when
      printing — does not affect the interactive flipbook above in any way. -->
 <div id="printArea"></div>
+
+<!-- Booklet print document: proper saddle-stitch (jahit-tengah) imposition —
+     2 pages per landscape sheet, ordered so that printing double-sided and
+     folding produces a correctly-ordered physical book. -->
+<div id="printAreaBooklet"></div>
 
 <script>
 const PAGE_DATA = {};
@@ -564,6 +635,97 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
       window.print();
     });
   }
+})();
+</script>
+
+<script>
+// ==== Booklet print feature (standalone, additive only) ====
+// Proper saddle-stitch (jahit-tengah) imposition: 2 pages per landscape
+// sheet, ordered so that printing double-sided ("flip on short edge") and
+// folding the whole stack in half once produces a correctly-ordered book.
+(function(){
+  const TOTAL_REAL_PAGES = 25;
+  // Saddle-stitch needs the page count to be a multiple of 4; pad with
+  // blank pages at the end (they land as blank slots in the imposition).
+  const paddedTotal = Math.ceil(TOTAL_REAL_PAGES / 4) * 4; // -> 28
+  const sheetCount = paddedTotal / 4; // -> 7
+
+  function labelFor(n){
+    if(n < 1 || n > TOTAL_REAL_PAGES) return ''; // blank padding page
+    if(n === 1 || n === 2 || n === 25) return '';
+    if(n === 3) return 'II';
+    return String(n - 3);
+  }
+
+  function halfHTML(n){
+    if(n < 1 || n > TOTAL_REAL_PAGES){
+      return ''; // blank slot (padding page) — empty white half
+    }
+    const label = labelFor(n);
+    const numHTML = label ? `<div class="booklet-page-number">${label}</div>` : '';
+    return `<img src="${PAGE_DATA[n]}" alt="Halaman ${n}">${numHTML}`;
+  }
+
+  function buildBookletArea(){
+    const area = document.getElementById('printAreaBooklet');
+    if(!area || area.childElementCount > 0) return; // already built
+
+    // Standard saddle-stitch imposition formula.
+    // For sheet i (1 = outermost ... sheetCount = innermost):
+    //   front-left  = P - (2i - 2)
+    //   front-right = 2i - 1
+    //   back-left   = 2i
+    //   back-right  = P - (2i - 1)
+    const P = paddedTotal;
+    for(let i=1; i<=sheetCount; i++){
+      const frontLeft  = P - (2*i - 2);
+      const frontRight = 2*i - 1;
+      const backLeft    = 2*i;
+      const backRight   = P - (2*i - 1);
+
+      const front = document.createElement('div');
+      front.className = 'booklet-sheet';
+      front.innerHTML =
+        `<div class="booklet-half --left">${halfHTML(frontLeft)}</div>` +
+        `<div class="booklet-half --right">${halfHTML(frontRight)}</div>`;
+      area.appendChild(front);
+
+      const back = document.createElement('div');
+      back.className = 'booklet-sheet';
+      back.innerHTML =
+        `<div class="booklet-half --left">${halfHTML(backLeft)}</div>` +
+        `<div class="booklet-half --right">${halfHTML(backRight)}</div>`;
+      area.appendChild(back);
+    }
+  }
+
+  let landscapeStyleTag = null;
+  function setLandscapePage(on){
+    if(on && !landscapeStyleTag){
+      landscapeStyleTag = document.createElement('style');
+      landscapeStyleTag.id = 'bookletLandscapeStyle';
+      landscapeStyleTag.textContent = '@media print{ @page{ size:landscape; margin:0; } }';
+      document.head.appendChild(landscapeStyleTag);
+    } else if(!on && landscapeStyleTag){
+      landscapeStyleTag.remove();
+      landscapeStyleTag = null;
+    }
+  }
+
+  const bookletBtn = document.getElementById('print-booklet-btn');
+  if(bookletBtn){
+    bookletBtn.addEventListener('click', ()=>{
+      buildBookletArea();
+      document.body.classList.add('printing-booklet');
+      setLandscapePage(true);
+      window.print();
+    });
+  }
+
+  window.addEventListener('afterprint', ()=>{
+    document.body.classList.remove('printing-booklet');
+    setLandscapePage(false);
+  });
 })();
 </script>
 
