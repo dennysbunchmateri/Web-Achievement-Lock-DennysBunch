@@ -265,7 +265,13 @@
       font-size:10pt; color:#555; font-family:'Segoe UI',Arial,sans-serif;
     }
     * {-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    #print-area.bw .half img{filter:grayscale(1) contrast(1.05);}
   }
+  #print-mode{
+    background:var(--panel-dark); border:1px solid #33373f; color:#eee;
+    padding:9px 14px; border-radius:24px; font-size:13px; cursor:pointer;
+  }
+  #print-mode option{background:#1a1d24; color:#eee;}
 </style>
 
 </head>
@@ -284,6 +290,10 @@
     <div id="page-indicator">Halaman 1 / 26</div>
     <button class="ctrl-btn" id="btnNext">Selanjutnya &#8594;</button>
     <button class="ctrl-btn" id="fullscreen-btn">&#9974; Layar Penuh</button>
+    <select id="print-mode" title="Mode cetak">
+      <option value="color">Berwarna</option>
+      <option value="bw">Hitam Putih</option>
+    </select>
     <button class="ctrl-btn" id="print-btn">&#128424; Cetak Landscape</button>
   </div>
   <div class="hint">Gunakan tombol panah keyboard (&#8592; &#8594;) atau seret sudut halaman untuk membalik</div>
@@ -525,6 +535,7 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
   function buildPrintArea(){
     const area = document.getElementById('print-area');
     area.innerHTML = '';
+    area.classList.toggle('bw', document.getElementById('print-mode').value === 'bw');
     PRINT_SHEETS.forEach(pair=>{
       const sheet = document.createElement('div');
       sheet.className = 'sheet';
