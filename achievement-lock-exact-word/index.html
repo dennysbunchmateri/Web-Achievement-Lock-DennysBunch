@@ -259,6 +259,20 @@
     color:#eee; font-size:14px; cursor:pointer;
   }
   #print-modal .opt:hover{background:#2f343c; border-color:var(--gold);}
+  #print-modal .tgls{display:flex; gap:8px; margin:0 0 10px;}
+  #print-modal .tgl{flex:1; display:flex; align-items:center; gap:9px; padding:9px 10px; text-align:left;
+    background:#25292f; border:1px solid #3a3f48; border-radius:10px; cursor:pointer; user-select:none;}
+  #print-modal .tgl:hover{border-color:#5a5f68;}
+  #print-modal .tgl input{position:absolute; opacity:0; pointer-events:none;}
+  #print-modal .tk{flex:none; width:30px; height:17px; border-radius:9px; background:#3a3f48; position:relative; transition:background .15s;}
+  #print-modal .tk::after{content:""; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#aaa; transition:transform .15s, background .15s;}
+  #print-modal .tgl input:checked ~ .tk{background:var(--gold);}
+  #print-modal .tgl input:checked ~ .tk::after{transform:translateX(13px); background:#111;}
+  #print-modal .tgl:has(input:checked){border-color:var(--gold);}
+  #print-modal .tgl input:focus-visible ~ .tk{outline:2px solid var(--gold); outline-offset:2px;}
+  #print-modal .tt{display:flex; flex-direction:column; line-height:1.25;}
+  #print-modal .tt b{font-size:13px; font-weight:600;}
+  #print-modal .tt small{font-size:10.5px; color:#999;}
   #print-modal .cancel{background:none; border:none; color:#888; font-size:12px; margin-top:8px; cursor:pointer;}
   /* ===== PRINT LANDSCAPE (urutan lembar sesuai susunan booklet) ===== */
   #print-area{display:none;}
@@ -285,6 +299,9 @@
     }
     * {-webkit-print-color-adjust:exact; print-color-adjust:exact;}
     #print-area.bw .half img{filter:grayscale(1) contrast(1.05);}
+    #print-area.mirror .sheet{transform:scaleX(-1);}
+    #print-area.flip .sheet{transform:scaleY(-1);}
+    #print-area.mirror.flip .sheet{transform:scale(-1,-1);}
   }
 
 
@@ -421,6 +438,10 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
   <div class="box">
     <h3>Cetak Landscape</h3>
     <p>A4 landscape &middot; 14 lembar &middot; pilih mode cetak</p>
+    <div class="tgls">
+      <label class="tgl"><input type="checkbox" id="opt-mirror"><span class="tk"></span><span class="tt"><b>Mirror</b><small>Cermin kiri&ndash;kanan</small></span></label>
+      <label class="tgl"><input type="checkbox" id="opt-flip"><span class="tk"></span><span class="tt"><b>Flip</b><small>Balik atas&ndash;bawah</small></span></label>
+    </div>
     <button class="opt" data-mode="color">&#127912; Cetak Berwarna</button>
     <button class="opt" data-mode="bw">&#9681; Cetak Hitam Putih</button>
     <button class="cancel" id="print-cancel">Batal</button>
@@ -893,6 +914,8 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
     const area = document.getElementById('print-area');
     area.innerHTML = '';
     area.classList.toggle('bw', printMode === 'bw');
+    area.classList.toggle('mirror', !!document.getElementById('opt-mirror').checked);
+    area.classList.toggle('flip', !!document.getElementById('opt-flip').checked);
     PRINT_SHEETS.forEach(pair=>{
       const sheet = document.createElement('div');
       sheet.className = 'sheet';
