@@ -279,7 +279,12 @@
     .half{
       flex:1 1 50%; width:50%; height:210mm;
       position:relative; overflow:hidden; background:#fff;
+      box-sizing:border-box;
     }
+    /* gutter buat lipatan/jilid: sisi dalam (dekat tengah) dikasih sedikit ruang,
+       sisi luar/atas/bawah full-bleed supaya gambar ga keliatan 'ketengah' */
+    .half:first-child{padding:0 7mm 0 0;}
+    .half:last-child{padding:0 0 0 7mm;}
     .half img{
       position:absolute; inset:0;
       width:100%; height:100%; object-fit:cover; object-position:center;
