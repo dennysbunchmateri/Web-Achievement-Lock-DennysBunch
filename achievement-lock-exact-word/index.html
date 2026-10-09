@@ -283,15 +283,24 @@
     }
     /* gutter buat lipatan/jilid: sisi dalam (dekat tengah) dikasih sedikit ruang,
        sisi luar/atas/bawah full-bleed supaya gambar ga keliatan 'ketengah' */
-    .half:first-child{padding:6mm 40mm 6mm 2mm;}
-    .half:last-child{padding:6mm 2mm 6mm 32mm;}
+    /* ===== ATUR JARAK DI SINI (satuan mm) ===== */
     .half img{
-      position:absolute; inset:0;
-      width:100%; height:100%; object-fit:contain; object-position:center;
+      position:absolute;
+      object-fit:contain;
       display:block;
     }
-    .half:first-child img{object-position:left center;}
-    .half:last-child img{object-position:right center;}
+    /* halaman KIRI: right = jarak dari garis lipat, left = margin tepi luar */
+    .half:first-child img{
+      top:6mm; left:2mm;
+      width:calc(100% - 34mm); height:calc(100% - 12mm);
+      object-position:left center;
+    }
+    /* halaman KANAN: left = jarak dari garis lipat, right = margin tepi luar */
+    .half:last-child img{
+      top:6mm; right:2mm;
+      width:calc(100% - 34mm); height:calc(100% - 12mm);
+      object-position:right center;
+    }
     .half .pn{
       position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
       font-size:9pt; color:#777; font-family:'Segoe UI',Arial,sans-serif;
