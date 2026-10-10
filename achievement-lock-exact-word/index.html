@@ -289,10 +289,11 @@
       object-fit:contain;
       display:block;
     }
-    /* halaman KIRI: gunakan seluruh area kiri tanpa memotong isi di tepi luar */
+    /* halaman KIRI: geser konten ke kiri agar tabel menjauh dari garis lipatan */
     .half:first-child img{
-      top:0; left:0;
+      top:0; left:-5mm;
       width:100%; height:100%;
+      object-fit:fill;
       object-position:left center;
     }
     /* halaman KANAN: left = jarak dari garis lipat, right = margin tepi luar */
