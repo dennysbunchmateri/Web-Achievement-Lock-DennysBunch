@@ -289,10 +289,10 @@
       object-fit:contain;
       display:block;
     }
-    /* halaman KIRI: ukuran sedang, tidak terpotong di tepi kiri */
+    /* halaman KIRI: gunakan seluruh area kiri tanpa memotong isi di tepi luar */
     .half:first-child img{
-      top:-1mm; left:-3mm;
-      width:calc(100% + 6mm); height:calc(100% + 2mm);
+      top:0; left:0;
+      width:100%; height:100%;
       object-position:left center;
     }
     /* halaman KANAN: left = jarak dari garis lipat, right = margin tepi luar */
