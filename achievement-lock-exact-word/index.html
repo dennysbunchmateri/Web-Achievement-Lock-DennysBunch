@@ -289,17 +289,27 @@
       object-fit:contain;
       display:block;
     }
-    /* halaman KIRI: geser konten ke kiri agar tabel menjauh dari garis lipatan */
+    /* halaman KIRI: right = jarak dari garis lipat, left = margin tepi luar */
     .half:first-child img{
-      top:0; left:0;
-      width:calc(100% - 12mm); height:100%;
-      object-fit:fill;
+      top:3mm; left:2mm;
+      width:calc(100% - 10mm); height:calc(100% - 6mm);
       object-position:left center;
     }
     /* halaman KANAN: left = jarak dari garis lipat, right = margin tepi luar */
     .half:last-child img{
       top:3mm; right:2mm;
       width:calc(100% - 10mm); height:calc(100% - 6mm);
+      object-position:right center;
+    }
+    /* Halaman yang diminta: beri ruang ekstra di sisi garis lipat. */
+    .half.extra-gutter:first-child img{
+      left:2mm; right:auto;
+      width:calc(100% - 18mm); height:calc(100% - 6mm);
+      object-position:left center;
+    }
+    .half.extra-gutter:last-child img{
+      right:2mm; left:auto;
+      width:calc(100% - 18mm); height:calc(100% - 6mm);
       object-position:right center;
     }
     .half .pn{
@@ -591,6 +601,11 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
         const img = resolveImg(ref);
         if(img){
           const lbl = getPageNumberLabel(img);
+          // Nomor halaman cetak yang perlu dijauhkan dari garis lipat.
+          const printedPage = (typeof ref === 'number') ? ref : null;
+          if([1,3,5,7,9,11,13,15,17,19,21].includes(printedPage)) {
+            half.classList.add('extra-gutter');
+          }
           half.innerHTML = `<img src="${PAGE_DATA[img]}" alt="Halaman ${img}">` +
                            (lbl ? `<div class="pn">${lbl}</div>` : '');
         }
