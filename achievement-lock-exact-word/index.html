@@ -141,12 +141,6 @@
     padding:0;
     margin:0 auto;
   }
-  /* Selected odd-numbered pages: keep the original full-size artwork,
-     but nudge it slightly toward the outer edge so inner text sits farther
-     from the center fold. The page/image dimensions are not reduced. */
-  .page-content img.fold-safe-page{
-    transform:translateX(10px);
-  }
   .page-number{
     position:absolute;
     bottom:15px;
@@ -406,9 +400,7 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
     pageDiv.className = 'page';
     const numLabel = getPageNumberLabel(i);
     const numHTML = numLabel ? `<div class="page-number">${numLabel}</div>` : '';
-    const foldSafePages = [1,3,5,7,9,11,13,15,17,19,21];
-    const foldSafeClass = foldSafePages.includes(i) ? ' class="fold-safe-page"' : '';
-    pageDiv.innerHTML = `<div class="page-content"><img${foldSafeClass} src="${PAGE_DATA[i]}" alt="Halaman ${i}">${numHTML}</div>`;
+    pageDiv.innerHTML = `<div class="page-content"><img src="${PAGE_DATA[i]}" alt="Halaman ${i}">${numHTML}</div>`;
     bookEl.appendChild(pageDiv);
   }
 
@@ -450,7 +442,7 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
         autoSize: true,
         drawShadow: true,
         maxShadowOpacity: 0.6,
-        showCover: false,
+        showCover: true,
         mobileScrollSupport: false,
         usePortrait: true,
         flippingTime: 700
@@ -502,12 +494,16 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
       return `<div class="page-content"><img src="${PAGE_DATA[n]}" alt="Halaman ${n}"></div>`;
     }
 
-    // Sampul depan (halaman 1) di kiri pada tampilan awal,
-    // dan sampul belakang (halaman 25) di kanan pada tampilan akhir.
-    const spreads = [];
-    for(let n = 1; n <= 25; n += 2){
-      spreads.push([n, n + 1 <= 25 ? n + 1 : null]);
+    // Build the same cover-aware pairing showCover:true produces:
+    // [1] alone | [2,3] | [4,5] | ... | [22,23] | [24] alone | [25] alone
+    const spreads = [[1]];
+    let n = 2;
+    while(n <= 23){
+      spreads.push([n, n+1]);
+      n += 2;
     }
+    if(n === 24) spreads.push([24]); // odd page count leaves one page alone
+    spreads.push([25]);
 
     function render(){
       const spread = spreads[fallbackIndex] || [1];
@@ -558,8 +554,8 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
   // Cover berwarna = gambar 1, cover hitam-putih = gambar 2, identitas = gambar 3.
   // Tiap lembar = [kiri, kanan]. null = kosong.
   const PRINT_SHEETS = [
-    [null,'C1'],   // 1  : kiri kosong, cover Denny's Bunch berwarna
-    [null,'C2'],   // 2  : kiri kosong, cover Denny's Bunch hitam putih
+    ['C1',null],   // 1  : cover depan di kiri
+    [null,'C2'],   // 2  : cover belakang di kanan
     [21,null],     // 3  : hal 21 kiri, kanan kosong
     [null,20],     // 4  : kiri kosong, hal 20 kanan
     [19,'ID'],     // 5  : hal 19 kiri, identitas kanan
