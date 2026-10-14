@@ -281,34 +281,24 @@
       position:relative; overflow:hidden; background:#fff;
       box-sizing:border-box;
     }
-    /* Keep each scanned page at its original full size and position.
-       Do not enlarge or shift the images: that was cutting text at the outer edge.
-       Add a narrow white safety gutter only along the center fold. */
+    /* Print proporsional: tiap halaman utuh di dalam setengah lembar A4 landscape.
+       Jangan menggeser atau memperlebar gambar; object-fit:contain mencegah teks terpotong. */
     .half img{
       position:absolute;
       inset:0;
-      width:100%;
-      height:100%;
-      object-fit:fill;
+      width:100%; height:100%;
+      object-fit:contain;
+      object-position:center center;
       display:block;
     }
-    .half:first-child::after{
-      content:"";
-      position:absolute;
-      top:0; right:0; bottom:0;
-      width:5mm;
-      background:#fff;
-      pointer-events:none;
-      z-index:1;
+    /* Ruang putih kecil di garis lipatan saja; tidak mengubah skala isi halaman. */
+    .sheet .half:first-child::after{
+      content:""; position:absolute; top:0; right:0; bottom:0; width:3mm;
+      background:#fff; pointer-events:none; z-index:1;
     }
-    .half:last-child::before{
-      content:"";
-      position:absolute;
-      top:0; left:0; bottom:0;
-      width:5mm;
-      background:#fff;
-      pointer-events:none;
-      z-index:1;
+    .sheet .half:last-child::after{
+      content:""; position:absolute; top:0; left:0; bottom:0; width:3mm;
+      background:#fff; pointer-events:none; z-index:1;
     }
     .half .pn{
       position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
