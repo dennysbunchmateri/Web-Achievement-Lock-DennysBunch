@@ -281,24 +281,34 @@
       position:relative; overflow:hidden; background:#fff;
       box-sizing:border-box;
     }
-    /* Jarak lipatan tanpa mengecilkan halaman: ukuran gambar tetap 1/2 lembar.
-       Halaman kiri digeser sedikit ke kiri, halaman kanan digeser sedikit ke kanan.
-       Jadi isi menjauh dari tengah; hanya area tepi luar yang mungkin terpotong tipis. */
+    /* Keep each scanned page at its original full size and position.
+       Do not enlarge or shift the images: that was cutting text at the outer edge.
+       Add a narrow white safety gutter only along the center fold. */
     .half img{
       position:absolute;
-      top:0;
-      width:100%; height:100%;
+      inset:0;
+      width:100%;
+      height:100%;
       object-fit:fill;
       display:block;
     }
-    .half:first-child img{
-      left:-6mm;
-      width:calc(100% + 6mm);
+    .half:first-child::after{
+      content:"";
+      position:absolute;
+      top:0; right:0; bottom:0;
+      width:5mm;
+      background:#fff;
+      pointer-events:none;
+      z-index:1;
     }
-    .half:last-child img{
-      left:0;
-      width:calc(100% + 6mm);
-      transform:translateX(6mm);
+    .half:last-child::before{
+      content:"";
+      position:absolute;
+      top:0; left:0; bottom:0;
+      width:5mm;
+      background:#fff;
+      pointer-events:none;
+      z-index:1;
     }
     .half .pn{
       position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
