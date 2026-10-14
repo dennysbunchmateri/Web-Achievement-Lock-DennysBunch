@@ -281,25 +281,24 @@
       position:relative; overflow:hidden; background:#fff;
       box-sizing:border-box;
     }
-    /* gutter buat lipatan/jilid: sisi dalam (dekat tengah) dikasih sedikit ruang,
-       sisi luar/atas/bawah full-bleed supaya gambar ga keliatan 'ketengah' */
-    /* ===== ATUR JARAK DI SINI (satuan mm) ===== */
+    /* Jarak lipatan tanpa mengecilkan halaman: ukuran gambar tetap 1/2 lembar.
+       Halaman kiri digeser sedikit ke kiri, halaman kanan digeser sedikit ke kanan.
+       Jadi isi menjauh dari tengah; hanya area tepi luar yang mungkin terpotong tipis. */
     .half img{
       position:absolute;
-      object-fit:contain;
+      top:0;
+      width:100%; height:100%;
+      object-fit:fill;
       display:block;
     }
-    /* halaman KIRI: right = jarak dari garis lipat, left = margin tepi luar */
     .half:first-child img{
-      top:3mm; left:2mm;
-      width:calc(100% - 10mm); height:calc(100% - 6mm);
-      object-position:left center;
+      left:-6mm;
+      width:calc(100% + 6mm);
     }
-    /* halaman KANAN: left = jarak dari garis lipat, right = margin tepi luar */
     .half:last-child img{
-      top:3mm; right:2mm;
-      width:calc(100% - 10mm); height:calc(100% - 6mm);
-      object-position:right center;
+      left:0;
+      width:calc(100% + 6mm);
+      transform:translateX(6mm);
     }
     .half .pn{
       position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
@@ -554,8 +553,8 @@ PAGE_DATA[25] = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMC
   // Cover berwarna = gambar 1, cover hitam-putih = gambar 2, identitas = gambar 3.
   // Tiap lembar = [kiri, kanan]. null = kosong.
   const PRINT_SHEETS = [
-    ['C1',null],   // 1  : cover depan di kiri
-    [null,'C2'],   // 2  : cover belakang di kanan
+    [null,'C1'],   // 1  : kiri kosong, cover Denny's Bunch berwarna
+    [null,'C2'],   // 2  : kiri kosong, cover Denny's Bunch hitam putih
     [21,null],     // 3  : hal 21 kiri, kanan kosong
     [null,20],     // 4  : kiri kosong, hal 20 kanan
     [19,'ID'],     // 5  : hal 19 kiri, identitas kanan
