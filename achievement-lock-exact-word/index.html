@@ -6,331 +6,381 @@
 <title>Achievement Lock - E-Book Flipbook | Denny's Bunch</title>
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <style>
-  :root{
-    --gold:#e8c400;
-    --bg-dark:#111317;
-    --panel-dark:#1a1d24;
-  }
-  *{box-sizing:border-box;}
-  html,body{
-    margin:0; padding:0; height:100%;
-    background:radial-gradient(circle at 50% 20%, #23262f 0%, #111317 70%);
-    font-family:'Segoe UI', Arial, sans-serif;
-    color:#eee;
-    overflow:hidden;
-  }
-  #stage{
-    position:fixed; inset:0;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:14px;
-    padding:16px;
-  }
-  #title-bar{
-    font-size:14px;
-    letter-spacing:2px;
-    color:var(--gold);
-    text-transform:uppercase;
-    font-weight:600;
-    opacity:.85;
-    text-align:center;
-  }
-  #book-wrap{
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-    max-width:900px;
-    margin:0 auto;
-    flex:1;
-    min-height:0;
-    padding:28px 24px;
-    box-sizing:border-box;
-    overflow:visible;
-  }
-  #bookshadow{
-    position:absolute;
-    width:min(92vw, calc(68vh * 1.41), 900px);
-    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
-    border-radius:6px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.5);
-    pointer-events:none;
-    z-index:0;
-    margin:0 auto;
-  }
-  #book{
-    position:relative;
-    z-index:1;
-    width:min(92vw, calc(68vh * 1.41), 900px);
-    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
-    background-color:transparent;
-    overflow:hidden;
-    margin:0 auto;
-  }
-  #book .stf__parent,
-  #book .stf__wrapper,
-  #book .stf__block{
-    background-color:transparent !important;
-    overflow:hidden !important;
-    backface-visibility:hidden !important;
-    -webkit-backface-visibility:hidden !important;
-  }
-  #book .stf__item{
-    background-color:#ffffff !important;
-    overflow:hidden !important;
-    backface-visibility:hidden !important;
-    -webkit-backface-visibility:hidden !important;
-  }
-  .page{
-    background-color:#ffffff;
-    overflow:hidden;
-    position:relative;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    transform-style:preserve-3d;
-    isolation:isolate;
-    padding:0;
-    margin:0;
-  }
-  .page-content{
-    width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center;
-    background-color:#ffffff;
-    position:relative;
-    overflow:hidden;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    padding:0;
-    margin:0;
-  }
-  .page-content::before{
-    content:"";
-    position:absolute; inset:0;
-    background:
-      linear-gradient(to right, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%),
-      linear-gradient(to left, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%);
-    pointer-events:none;
-    z-index:6;
-  }
-  .page.--left .page-content::before{
-    background:linear-gradient(to left, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
-  }
-  .page.--right .page-content::before{
-    background:linear-gradient(to right, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
-  }
-  .page-content img{
-    width:100%; height:100%;
-    object-fit:contain;
-    object-position:center;
-    display:block;
-    background-color:#ffffff;
-    padding:0;
-    margin:0 auto;
-  }
-  .page-number{
-    position:absolute;
-    bottom:15px;
-    left:50%;
-    transform:translateX(-50%);
-    font-size:12px;
-    color:#555;
-    font-family:inherit;
-    z-index:8;
-    pointer-events:none;
-    background-color:rgba(255,255,255,.75);
-    padding:1px 8px;
-    border-radius:3px;
-  }
+  :root{
+    --gold:#e8c400;
+    --bg-dark:#111317;
+    --panel-dark:#1a1d24;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:radial-gradient(circle at 50% 20%, #23262f 0%, #111317 70%);
+    font-family:'Segoe UI', Arial, sans-serif;
+    color:#eee;
+    overflow:hidden;
+  }
+  #stage{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:14px;
+    padding:16px;
+  }
+  #title-bar{
+    font-size:14px;
+    letter-spacing:2px;
+    color:var(--gold);
+    text-transform:uppercase;
+    font-weight:600;
+    opacity:.85;
+    text-align:center;
+  }
+  #book-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+    flex:1;
+    min-height:0;
+    padding:28px 24px;
+    box-sizing:border-box;
+    overflow:visible;
+  }
+  #bookshadow{
+    position:absolute;
+    width:min(92vw, calc(68vh * 1.41), 900px);
+    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
+    border-radius:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    pointer-events:none;
+    z-index:0;
+    margin:0 auto;
+  }
+  #book{
+    position:relative;
+    z-index:1;
+    width:min(92vw, calc(68vh * 1.41), 900px);
+    height:min(68vh, calc(92vw / 1.41), calc(900px / 1.41));
+    background-color:transparent;
+    overflow:hidden;
+    margin:0 auto;
+  }
+  #book .stf__parent,
+  #book .stf__wrapper,
+  #book .stf__block{
+    background-color:transparent !important;
+    overflow:hidden !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
+  }
+  #book .stf__item{
+    background-color:#ffffff !important;
+    overflow:hidden !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
+  }
+  .page{
+    background-color:#ffffff;
+    overflow:hidden;
+    position:relative;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    transform-style:preserve-3d;
+    isolation:isolate;
+    padding:0;
+    margin:0;
+  }
+  .page-content{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    background-color:#ffffff;
+    position:relative;
+    overflow:hidden;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    padding:0;
+    margin:0;
+  }
+  .page-content::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to right, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%),
+      linear-gradient(to left, rgba(0,0,0,.16) 0%, rgba(0,0,0,0) 9%);
+    pointer-events:none;
+    z-index:6;
+  }
+  .page.--left .page-content::before{
+    background:linear-gradient(to left, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
+  }
+  .page.--right .page-content::before{
+    background:linear-gradient(to right, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 16%);
+  }
+  .page-content img{
+    width:100%; height:100%;
+    object-fit:contain;
+    object-position:center;
+    display:block;
+    background-color:#ffffff;
+    padding:0;
+    margin:0 auto;
+  }
+  .page-number{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    color:#555;
+    font-family:inherit;
+    z-index:8;
+    pointer-events:none;
+    background-color:rgba(255,255,255,.75);
+    padding:1px 8px;
+    border-radius:3px;
+  }
 
-  #controls{
-    display:flex;
-    align-items:center;
-    gap:16px;
-    flex-wrap:wrap;
-    justify-content:center;
-    padding:6px 10px;
-  }
-  .ctrl-btn{
-    background:var(--panel-dark);
-    border:1px solid #33373f;
-    color:#eee;
-    padding:9px 18px;
-    border-radius:24px;
-    font-size:13px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    transition:background .15s, transform .1s;
-    user-select:none;
-  }
-  .ctrl-btn:hover{background:#25292f;}
-  .ctrl-btn:active{transform:scale(.96);}
-  .ctrl-btn.disabled{opacity:.35; pointer-events:none;}
-  #page-indicator{
-    font-size:13px;
-    color:#ccc;
-    background:var(--panel-dark);
-    border:1px solid #33373f;
-    padding:9px 16px;
-    border-radius:24px;
-    min-width:120px;
-    text-align:center;
-  }
-  #fullscreen-btn{
-    margin-left:6px;
-  }
-  .hint{
-    font-size:11px;
-    color:#777;
-    text-align:center;
-  }
+  #controls{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    justify-content:center;
+    padding:6px 10px;
+  }
+  .ctrl-btn{
+    background:var(--panel-dark);
+    border:1px solid #33373f;
+    color:#eee;
+    padding:9px 18px;
+    border-radius:24px;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:background .15s, transform .1s;
+    user-select:none;
+  }
+  .ctrl-btn:hover{background:#25292f;}
+  .ctrl-btn:active{transform:scale(.96);}
+  .ctrl-btn.disabled{opacity:.35; pointer-events:none;}
+  #page-indicator{
+    font-size:13px;
+    color:#ccc;
+    background:var(--panel-dark);
+    border:1px solid #33373f;
+    padding:9px 16px;
+    border-radius:24px;
+    min-width:120px;
+    text-align:center;
+  }
+  #fullscreen-btn{
+    margin-left:6px;
+  }
+  .hint{
+    font-size:11px;
+    color:#777;
+    text-align:center;
+  }
 
-  @media (max-width: 700px){
-    #stage{padding:10px; gap:10px;}
-    #title-bar{font-size:10.5px; letter-spacing:1.2px;}
-    #book-wrap{padding:14px 10px; max-width:100%;}
-    #book, #bookshadow{
-      width:min(88vw, calc(64vh / 1.41));
-      height:min(64vh, calc(88vw * 1.41));
-      max-width:420px;
-    }
-    #controls{gap:8px; padding:4px 4px;}
-    .ctrl-btn{padding:8px 12px; font-size:11.5px; gap:4px;}
-    #page-indicator{padding:8px 12px; font-size:11.5px; min-width:88px;}
-    #fullscreen-btn{margin-left:0;}
-    .hint{font-size:9.5px; padding:0 8px;}
-    .page-number{font-size:10px; bottom:10px; padding:1px 6px;}
-  }
+  @media (max-width: 700px){
+    #stage{padding:10px; gap:10px;}
+    #title-bar{font-size:10.5px; letter-spacing:1.2px;}
+    #book-wrap{padding:14px 10px; max-width:100%;}
+    #book, #bookshadow{
+      width:min(88vw, calc(64vh / 1.41));
+      height:min(64vh, calc(88vw * 1.41));
+      max-width:420px;
+    }
+    #controls{gap:8px; padding:4px 4px;}
+    .ctrl-btn{padding:8px 12px; font-size:11.5px; gap:4px;}
+    #page-indicator{padding:8px 12px; font-size:11.5px; min-width:88px;}
+    #fullscreen-btn{margin-left:0;}
+    .hint{font-size:9.5px; padding:0 8px;}
+    .page-number{font-size:10px; bottom:10px; padding:1px 6px;}
+  }
 
-  @media (max-width: 420px){
-    #title-bar{font-size:9px; letter-spacing:.8px;}
-    .ctrl-btn{padding:7px 10px; font-size:11px;}
-    #page-indicator{padding:7px 10px; font-size:11px; min-width:76px;}
-    .hint{display:none;}
-  }
+  @media (max-width: 420px){
+    #title-bar{font-size:9px; letter-spacing:.8px;}
+    .ctrl-btn{padding:7px 10px; font-size:11px;}
+    #page-indicator{padding:7px 10px; font-size:11px; min-width:76px;}
+    .hint{display:none;}
+  }
 
-  @media (max-width: 700px) and (orientation: landscape){
-    #stage{padding:6px; gap:6px;}
-    #title-bar{font-size:9px;}
-    #book-wrap{padding:8px 10px;}
-    #book, #bookshadow{
-      width:min(70vw, calc(80vh / 1.41));
-      height:min(80vh, calc(70vw * 1.41));
-      max-width:360px;
-    }
-    .hint{display:none;}
-  }
+  @media (max-width: 700px) and (orientation: landscape){
+    #stage{padding:6px; gap:6px;}
+    #title-bar{font-size:9px;}
+    #book-wrap{padding:8px 10px;}
+    #book, #bookshadow{
+      width:min(70vw, calc(80vh / 1.41));
+      height:min(80vh, calc(70vw * 1.41));
+      max-width:360px;
+    }
+    .hint{display:none;}
+  }
 
-  #print-modal{
-    display:none; position:fixed; inset:0; z-index:9999;
-    background:rgba(0,0,0,.65); align-items:center; justify-content:center;
-  }
-  #print-modal.open{display:flex;}
-  #print-modal .box{
-    background:#1a1d24; border:1px solid #33373f; border-radius:14px;
-    padding:22px 24px; width:min(92vw,360px); text-align:center; color:#eee;
-  }
-  #print-modal h3{margin:0 0 6px; font-size:16px;}
-  #print-modal p{margin:0 0 16px; font-size:12px; color:#aaa;}
-  #print-modal .opt{
-    display:block; width:100%; margin:8px 0; padding:11px 14px;
-    background:#25292f; border:1px solid #3a3f48; border-radius:10px;
-    color:#eee; font-size:14px; cursor:pointer;
-  }
-  #print-modal .opt:hover{background:#2f343c; border-color:var(--gold);}
-  #print-modal .cancel{background:none; border:none; color:#888; font-size:12px; margin-top:8px; cursor:pointer;}
-  
-  #qr-upload-btn{background:#25292f;border:1px solid #555;color:#fff;padding:9px 14px;border-radius:24px;font-size:13px;cursor:pointer}
-  #qr-file{display:none}
+  #print-modal{
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.65); align-items:center; justify-content:center;
+  }
+  #print-modal.open{display:flex;}
+  #print-modal .box{
+    background:#1a1d24; border:1px solid #33373f; border-radius:14px;
+    padding:22px 24px; width:min(92vw,360px); text-align:center; color:#eee;
+  }
+  #print-modal h3{margin:0 0 6px; font-size:16px;}
+  #print-modal p{margin:0 0 16px; font-size:12px; color:#aaa;}
+  #print-modal .opt{
+    display:block; width:100%; margin:8px 0; padding:11px 14px;
+    background:#25292f; border:1px solid #3a3f48; border-radius:10px;
+    color:#eee; font-size:14px; cursor:pointer;
+  }
+  #print-modal .opt:hover{background:#2f343c; border-color:var(--gold);}
+  #print-modal .cancel{background:none; border:none; color:#888; font-size:12px; margin-top:8px; cursor:pointer;}
+  
+  #qr-upload-btn{background:#25292f;border:1px solid #555;color:#fff;padding:9px 14px;border-radius:24px;font-size:13px;cursor:pointer}
+  #qr-file{display:none}
 
-  /* Perbaikan posisi grid QR code agar tepat berada di dalam kolom tabel halaman 10 */
-  .qr-grid{position:absolute;left:88.5%;top:36.5%;width:6.2%;height:44.5%;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));z-index:7;overflow:hidden;box-sizing:border-box;pointer-events:auto;}
-  .qr-grid.qr-left-page{left:41.5%;}
-  .qr-cell{box-sizing:border-box;min-width:0;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px dashed rgba(90,90,90,.45);background:rgba(255,255,255,.35);cursor:pointer;color:#777;font-size:8px;line-height:1;}
-  .qr-cell img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#fff;display:block;}
-  .qr-cell.has-qr{background:#fff;border:0;}
-  .qr-cell input{display:none}
+  .qr-grid{position:absolute;left:88.5%;top:36.5%;width:6.2%;height:44.5%;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));z-index:7;overflow:hidden;box-sizing:border-box;pointer-events:auto;}
+  .qr-grid.qr-left-page{left:41.5%;}
+  .qr-cell{box-sizing:border-box;min-width:0;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px dashed rgba(90,90,90,.45);background:rgba(255,255,255,.35);cursor:pointer;color:#777;font-size:8px;line-height:1;}
+  .qr-cell img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#fff;display:block;}
+  .qr-cell.has-qr{background:#fff;border:0;}
+  .qr-cell input{display:none}
 
-  @media print{
-    .print-qr-grid{position:absolute;left:88.5%;top:36.5%;width:6.2%;height:44.5%;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));z-index:3;overflow:hidden;box-sizing:border-box;}
-    .print-qr-grid.qr-left-page{left:41.5%;}
-    .print-qr-grid img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#fff;display:block;}
-  }
+  @media print{
+    .print-qr-grid{position:absolute;left:88.5%;top:36.5%;width:6.2%;height:44.5%;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));z-index:3;overflow:hidden;box-sizing:border-box;}
+    .print-qr-grid.qr-left-page{left:41.5%;}
+    .print-qr-grid img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#fff;display:block;}
+  }
 
-  #print-area{display:none;}
-  @media print{
-    @page{size:A4 landscape; margin:0;}
-    html,body{width:297mm; height:210mm; margin:0; padding:0; overflow:visible !important; background:#fff !important;}
-    #stage{display:none !important;}
-    #print-area{display:block !important; width:297mm;}
-    .sheet{
-      width:297mm; height:210mm;
-      margin:0; padding:0;
-      display:flex; flex-direction:row;
-      page-break-after:always; break-after:page;
-      page-break-inside:avoid; break-inside:avoid;
-      overflow:hidden; background:#fff;
-    }
-    .sheet:last-child{page-break-after:auto; break-after:auto;}
-    .half{
-      flex:1 1 50%; width:50%; height:210mm;
-      position:relative; overflow:hidden; background:#fff;
-      box-sizing:border-box;
-    }
-    .half img{
-      position:absolute;
-      inset:0;
-      width:100%; height:100%;
-      object-fit:contain;
-      object-position:center center;
-      display:block;
-    }
-    .sheet .half:first-child::after{
-      content:""; position:absolute; top:0; right:0; bottom:0; width:3mm;
-      background:#fff; pointer-events:none; z-index:1;
-    }
-    .sheet .half:last-child::after{
-      content:""; position:absolute; top:0; left:0; bottom:0; width:3mm;
-      background:#fff; pointer-events:none; z-index:1;
-    }
-    .half .pn{
-      position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
-      font-size:9pt; color:#777; font-family:'Segoe UI',Arial,sans-serif;
-      background:rgba(255,255,255,.75); padding:0 3mm; border-radius:3mm;
-      z-index:2;
-    }
-    * {-webkit-print-color-adjust:exact; print-color-adjust:exact;}
-    #print-area.bw .half img{filter:grayscale(1) contrast(1.05);}
-  }
+  #print-area{display:none;}
+  @media print{
+    @page{size:A4 landscape; margin:0;}
+    html,body{width:297mm; height:210mm; margin:0; padding:0; overflow:visible !important; background:#fff !important;}
+    #stage{display:none !important;}
+    #print-area{display:block !important; width:297mm;}
+    .sheet{
+      width:297mm; height:210mm;
+      margin:0; padding:0;
+      display:flex; flex-direction:row;
+      page-break-after:always; break-after:page;
+      page-break-inside:avoid; break-inside:avoid;
+      overflow:hidden; background:#fff;
+    }
+    .sheet:last-child{page-break-after:auto; break-after:auto;}
+    .half{
+      flex:1 1 50%; width:50%; height:210mm;
+      position:relative; overflow:hidden; background:#fff;
+      box-sizing:border-box;
+    }
+    .half img{
+      position:absolute;
+      inset:0;
+      width:100%; height:100%;
+      object-fit:contain;
+      object-position:center center;
+      display:block;
+    }
+    .sheet .half:first-child::after{
+      content:""; position:absolute; top:0; right:0; bottom:0; width:3mm;
+      background:#fff; pointer-events:none; z-index:1;
+    }
+    .sheet .half:last-child::after{
+      content:""; position:absolute; top:0; left:0; bottom:0; width:3mm;
+      background:#fff; pointer-events:none; z-index:1;
+    }
+    .half .pn{
+      position:absolute; bottom:4mm; left:50%; transform:translateX(-50%);
+      font-size:9pt; color:#777; font-family:'Segoe UI',Arial,sans-serif;
+      background:rgba(255,255,255,.75); padding:0 3mm; border-radius:3mm;
+      z-index:2;
+    }
+    * {-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    #print-area.bw .half img{filter:grayscale(1) contrast(1.05);}
+  }
 </style>
 </head>
 <body>
 
 <div id="stage">
-  <div id="title-bar">Achievement Lock &middot; Denny's Bunch &middot; Interactive Flipbook</div>
+  <div id="title-bar">Achievement Lock &middot; Denny's Bunch &middot; Interactive Flipbook</div>
 
-  <div id="book-wrap">
-    <div id="bookshadow"></div>
-    <div id="book"></div>
-  </div>
+  <div id="book-wrap">
+    <div id="bookshadow"></div>
+    <div id="book"></div>
+  </div>
 
-  <div id="controls">
-    <button class="ctrl-btn" id="btnPrev">&#8592; Sebelumnya</button>
-    <div id="page-indicator">Halaman 1 / 26</div>
-    <button class="ctrl-btn" id="btnNext">Selanjutnya &#8594;</button>
-    <button class="ctrl-btn" id="fullscreen-btn">&#9974; Layar Penuh</button>
-    <button class="ctrl-btn" id="print-btn">&#128424; Cetak Landscape</button>
-    <button id="qr-upload-btn" type="button">＋ Tambah QR Code</button>
-    <input id="qr-file" type="file" accept="image/*">
-  </div>
-  <div class="hint">Gunakan tombol panah keyboard (&#8592; &#8594;) atau seret sudut halaman untuk membalik</div>
+  <div id="controls">
+    <button class="ctrl-btn" id="btnPrev">&#8592; Sebelumnya</button>
+    <div id="page-indicator">Halaman 1 / 26</div>
+    <button class="ctrl-btn" id="btnNext">Selanjutnya &#8594;</button>
+    <button class="ctrl-btn" id="fullscreen-btn">&#9974; Layar Penuh</button>
+    <button class="ctrl-btn" id="print-btn">&#128424; Cetak Landscape</button>
+    <button id="qr-upload-btn" type="button">＋ Tambah QR Code</button>
+    <input id="qr-file" type="file" accept="image/*">
+  </div>
+  <div class="hint">Gunakan tombol panah keyboard (&#8592; &#8594;) atau seret sudut halaman untuk membalik</div>
 </div>
 
 <script>
 const PAGE_DATA = {};
-// Masukkan data gambar halaman Anda di sini sesuai kebutuhan
+// Contoh data halaman (Sesuaikan jumlah dan sumber gambar Anda di sini)
+for (let i = 1; i <= 26; i++) {
+  PAGE_DATA[i] = ""; // Masukkan string Base64 atau URL gambar halaman Anda
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const bookElement = document.getElementById("book");
+  
+  // Inisialisasi elemen halaman ke dalam buku
+  for (let i = 1; i <= 26; i++) {
+    const pageDiv = document.createElement("div");
+    pageDiv.className = "page " + (i % 2 === 0 ? "--right" : "--left");
+    
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "page-content";
+    
+    if (PAGE_DATA[i]) {
+      const img = document.createElement("img");
+      img.src = PAGE_DATA[i];
+      contentDiv.appendChild(img);
+    }
+    
+    const numDiv = document.createElement("div");
+    numDiv.className = "page-number";
+    numDiv.textContent = i;
+    contentDiv.appendChild(numDiv);
+    
+    pageDiv.appendChild(contentDiv);
+    bookElement.appendChild(pageDiv);
+  }
+
+  // Jika pustaka page-flip tersedia, jalankan inisialisasi flipbook
+  if (typeof St !== 'undefined' && St.PageFlip) {
+    const pageFlip = new St.PageFlip(bookElement, {
+      width: 450,
+      height: 636,
+      size: "stretch",
+      minWidth: 315,
+      maxWidth: 1000,
+      minHeight: 420,
+      maxHeight: 1400,
+      maxShadowOpacity: 0.5,
+      showCover: true,
+      mobileScrollSupport: false
+    });
+    
+    pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+    
+    document.getElementById("btnPrev").addEventListener("click", () => pageFlip.flipPrev());
+    document.getElementById("btnNext").addEventListener("click", () => pageFlip.flipNext());
+  }
+});
 </script>
 
 </body>
